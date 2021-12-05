@@ -27,8 +27,7 @@ class Line:
     def isDiagonal(self):
         return not (self.isVertical or self.isHorizontal)
 
-    """ Returns a list of points that the line will pass through.
-        Not yet adjusted for diagonals """
+    """ Returns a list of points that the line will pass through."""
 
     def points(self):
         points = []
@@ -36,10 +35,18 @@ class Line:
             increment = 1 if self.start.x < self.end.x else -1
             for x in range(self.start.x, self.end.x + increment, increment):
                 points.append(f"x{x}y{self.start.y}")
-        if self.isVertical:
+        elif self.isVertical:
             increment = 1 if self.start.y < self.end.y else -1
             for y in range(self.start.y, self.end.y + increment, increment):
                 points.append(f"x{self.start.x}y{y}")
+        else:
+            yIncrement = 1 if self.start.y < self.end.y else -1
+            xIncrement = 1 if self.start.x < self.end.x else -1
+            for x, y in zip(
+                range(self.start.x, self.end.x + xIncrement, xIncrement),
+                range(self.start.y, self.end.y + yIncrement, yIncrement),
+            ):
+                points.append(f"x{x}y{y}")
         return points
 
 
@@ -56,9 +63,8 @@ def process(filename):
                     Point(int(match.group("x2")), int(match.group("y2"))),
                 )
             )
-        nonDiagonalLines = [line for line in lines if not line.isDiagonal]
         points = collections.Counter()
-        for line in nonDiagonalLines:
+        for line in lines:
             points.update(line.points())
         return len(list(itertools.takewhile(lambda i: i[1] >= 2, points.most_common())))
 
