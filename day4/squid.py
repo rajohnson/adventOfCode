@@ -85,7 +85,22 @@ class Bingo:
             self.update()
         return self.boards[self.boardWon()].score()
 
+    def unfinished_boards(self):
+        return [index for index, board in enumerate(self.boards) if not board.isWon()]
+
+    def all_boards_won(self):
+        board_results = [board.isWon() for board in self.boards]
+        return all(board_results)
+
+    def losing_score(self):
+        remaining = self.unfinished_boards()
+        while not self.all_boards_won():
+            remaining = self.unfinished_boards()
+            self.update()
+        losing_board_index = remaining[0]
+        return self.boards[losing_board_index].score()
+
 
 if __name__ == "__main__":
     game = Bingo("input.txt")
-    print(game.winning_score())
+    print(game.losing_score())
