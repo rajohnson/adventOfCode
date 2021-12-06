@@ -1,41 +1,24 @@
-import dataclasses
-
-
-@dataclasses.dataclass
-class Fish:
-    cycleTime: int
-    firstCycleExtraTime: int
-    timeToNext: int
-
-    def update(self):
-        self.timeToNext -= 1
-        if self.timeToNext < 0:
-            self.timeToNext = self.cycleTime
-            return Fish(
-                self.cycleTime,
-                timeToNext=self.cycleTime + self.firstCycleExtraTime,
-                firstCycleExtraTime=self.firstCycleExtraTime,
-            )
-        return None
+import collections
+from typing import Counter
 
 
 def fishModel(filename, cycleReset, firstCycleExtra, days):
-    population = []
     with open(filename) as file:
-        for fishData in file.readline().split(","):
-            population.append(Fish(cycleReset, firstCycleExtra, int(fishData)))
+        population = collections.Counter()
+        fishStates = map(int, file.readline().split(","))
+        population.update(fishStates)
     for _ in range(days):
-        newFish = []
-        for individual in population:
-            newborn = individual.update()
-            if newborn:
-                newFish.append(newborn)
-        if newFish:
-            population.extend(newFish)
-    print([fish.timeToNext for fish in population])
-    return len(population)
+        updatedPopulation = collections.Counter()
+        for day, number in population.items():
+            if day <= 0:
+                updatedPopulation[cycleReset] += number
+                updatedPopulation[cycleReset + firstCycleExtra] += number
+            else:
+                updatedPopulation[day - 1] += number
+        population = updatedPopulation
+    return population.total()
 
 
 if __name__ == "__main__":
-    result = fishModel("input.txt", cycleReset=6, firstCycleExtra=2, days=80)
+    result = fishModel("input.txt", cycleReset=6, firstCycleExtra=2, days=256)
     print(result)
