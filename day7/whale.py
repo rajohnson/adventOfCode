@@ -1,3 +1,10 @@
+import functools
+
+
+def fuelCost(distance):
+    return distance
+
+
 def align(filename):
     with open(filename) as file:
         positions = list(map(int, file.readline().split(",")))
@@ -5,7 +12,8 @@ def align(filename):
         for i in range(max(positions)):
             fuelUsed.append(0)  # creates index i
             for pos in positions:
-                fuelUsed[i] += abs(pos - i)
+                distance = abs(pos - i)
+                fuelUsed[i] += fuelCost(distance)
     return min(fuelUsed)
 
 
