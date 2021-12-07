@@ -1,8 +1,9 @@
 import functools
 
 
+@functools.lru_cache
 def fuelCost(distance):
-    return distance
+    return sum([i for i in range(1, distance + 1)])
 
 
 def align(filename):
