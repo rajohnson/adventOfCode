@@ -1,7 +1,7 @@
 import functools
 
 
-@functools.lru_cache
+@functools.lru_cache(maxsize=None)
 def fuelCost(distance):
     return sum([i for i in range(1, distance + 1)])
 
