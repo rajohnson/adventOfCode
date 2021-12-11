@@ -26,12 +26,18 @@ class NavigationSyntax:
                         brackets.pop()
                     else:
                         self.corrupt.append(c)
+                        brackets = []
                         break
+            if brackets:
+                completion = []
+                while brackets:
+                    completion.append(closing[opening.index(brackets.pop())])
+                self.incomplete.append(completion)
 
     def corruptScores(self):
-        return sum(self.getScore(c) for c in self.corrupt)
+        return sum(self.getCorruptScore(c) for c in self.corrupt)
 
-    def getScore(self, c):
+    def getCorruptScore(self, c):
         scores = {
             ")": 3,
             "]": 57,
@@ -40,7 +46,28 @@ class NavigationSyntax:
         }
         return scores[c]
 
+    def completionScores(self):
+        center = (
+            len(self.incomplete) // 2
+        )  # because of 0 indexing this is the center index
+        return sorted(
+            [self.getCompletionScore(completion) for completion in self.incomplete]
+        )[center]
+
+    def getCompletionScore(self, line):
+        scores = {
+            ")": 1,
+            "]": 2,
+            "}": 3,
+            ">": 4,
+        }
+        score = 0
+        for c in line:
+            score *= 5
+            score += scores[c]
+        return score
+
 
 if __name__ == "__main__":
-    result = NavigationSyntax("input.txt").corruptScores()
+    result = NavigationSyntax("input.txt").completionScores()
     print(result)
