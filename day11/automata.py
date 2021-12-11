@@ -45,8 +45,16 @@ class Octopuses:
         result += f"flashes={self.flashes}"
         return result
 
+    def updatesUntilSimultaneous(self):
+        updates = 0
+        flashesLast = self.flashes
+        while self.flashes - flashesLast != len(self.arr) * len(self.arr[0]):
+            flashesLast = self.flashes
+            updates += 1
+            self.update()
+        return updates
+
 
 if __name__ == "__main__":
     game = Octopuses("input.txt")
-    game.update(100)
-    print(game)
+    print(game.updatesUntilSimultaneous())
