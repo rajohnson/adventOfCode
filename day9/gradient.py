@@ -1,3 +1,6 @@
+import functools
+
+
 class Grid:
     def __init__(self, filename):
         with open(filename) as file:
@@ -36,7 +39,38 @@ class Grid:
     def getMinimaRisks(self):
         return sum(self.getRiskLevel(x, y) for x, y in self.minima)
 
+    def getBasinSizes(self):
+        return functools.reduce(
+            lambda x, y: x * y,
+            sorted(
+                [self.getBasinSize(minimum) for minimum in self.minima], reverse=True
+            )[:3],
+        )
+
+    def getBasinSize(self, square):
+        return len(self.squaresHigherThan(square))
+
+    def squaresHigherThan(self, square):
+        x, y = square
+        value = self.getRiskLevel(x, y)
+
+        up = (x, y - 1)
+        down = (x, y + 1)
+        left = (x - 1, y)
+        right = (x + 1, y)
+        adjacent = [up, down, right, left]
+
+        squares = set([square])
+
+        for square in adjacent:
+            x, y = square
+            risk = self.getRiskLevel(x, y)
+            if risk < 10 and value < risk:
+                squares = squares.union(self.squaresHigherThan(square))
+        return squares
+
 
 if __name__ == "__main__":
+    # result = Grid("test.txt")
     result = Grid("input.txt")
-    print(result.getMinimaRisks())
+    print(result.getBasinSizes())
