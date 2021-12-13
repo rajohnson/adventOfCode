@@ -15,11 +15,10 @@ class Caves:
             self.caves[b].add(a)
 
     def countPossiblePaths(self):
-        return self.pathsToStart("end", set())
+        return self.pathsToStart("end", [])
 
     def pathsToStart(self, location, visited):
         if location == "start":
-            print(visited)
             return 1
         remainingConnections = [
             nextLocation
@@ -29,14 +28,13 @@ class Caves:
         if not remainingConnections:
             return 0
         else:
-            visited.add(location)
             ways = [
-                self.pathsToStart(nextLocation, visited)
+                self.pathsToStart(nextLocation, visited + [location])
                 for nextLocation in remainingConnections
             ]
             return sum(ways)
 
 
 if __name__ == "__main__":
-    result = Caves("test.txt").countPossiblePaths()
+    result = Caves("input.txt").countPossiblePaths()
     print(result)
