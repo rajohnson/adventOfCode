@@ -10,4 +10,4 @@ with open("input.txt", "r") as data_in:
     if inventory:  # last one if the file doesn't have an extra newline
         all_inventories.append(inventory)
 
-    print(max([sum(inventory) for inventory in all_inventories]))
+    print(sum(sorted([sum(inventory) for inventory in all_inventories])[-3:]))
