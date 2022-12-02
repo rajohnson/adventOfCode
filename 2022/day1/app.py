@@ -45,13 +45,26 @@ def third_attempt():
         return part1_solution, part2_solution
 
 
+def fourth_attempt():
+    all_inventories = [0]
+    with open("input.txt", "r") as data_in:
+        for line in data_in:
+            if len(line) != 1:
+                all_inventories[-1] += int(line)
+            else:
+                all_inventories.append(0)
+
+        part1_solution = max(all_inventories)
+        part2_solution = sum(sorted(all_inventories)[-3:])
+        return part1_solution, part2_solution
+
+
 if __name__ == "__main__":
     import timeit
 
-    print(first_attempt())
-    print(second_attempt())
-    print(third_attempt())
-
-    print(timeit.timeit(lambda: first_attempt(), number=100))
-    print(timeit.timeit(lambda: second_attempt(), number=100))
-    print(timeit.timeit(lambda: third_attempt(), number=100))
+    repeats = 1000
+    for index, attempt in enumerate(
+        [first_attempt, second_attempt, third_attempt, fourth_attempt]
+    ):
+        timing = timeit.timeit(lambda: attempt(), number=repeats)
+        print(f"Attempt {index+1}: result = {attempt()}, timing = {timing:.3f}")
