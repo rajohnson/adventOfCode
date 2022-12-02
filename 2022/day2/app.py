@@ -1,76 +1,50 @@
-player_conversion = {
-    "X": "rock",
-    "Y": "paper",
-    "Z": "scissors",
-    "A": "rock",
-    "B": "paper",
-    "C": "scissors",
+rock = "rock"
+paper = "paper"
+scissors = "scissors"
+win = "win"
+draw = "draw"
+lose = "lose"
+
+player_conversion = {  # decodes the input to the expected plays
+    "X": rock,
+    "Y": paper,
+    "Z": scissors,
+    "A": rock,
+    "B": paper,
+    "C": scissors,
 }
-outcome_conversion = {"X": "lose", "Y": "draw", "Z": "win"}
-scoring = {"rock": 1, "paper": 2, "scissors": 3, "lose": 0, "draw": 3, "win": 6}
+scoring = {rock: 1, paper: 2, scissors: 3, lose: 0, draw: 3, win: 6}
 
-
-def game_result(playerA, playerB):
-    if playerA == "rock":
-        if playerB == "rock":
-            return "draw"
-        elif playerB == "paper":
-            return "win"
-        else:  # scissors
-            return "lose"
-    elif playerA == "paper":
-        if playerB == "rock":
-            return "lose"
-        elif playerB == "paper":
-            return "draw"
-        else:  # scissors
-            return "win"
-    else:  # scissors
-        if playerB == "rock":
-            return "win"
-        elif playerB == "paper":
-            return "lose"
-        else:  # scissors
-            return "draw"
+# all outcomes are written from the perspective of playerB
+game_result = {  # accessed with outcome[a][b], so outcome[rock][paper] == win
+    rock: {rock: draw, paper: win, scissors: lose},
+    paper: {rock: lose, paper: draw, scissors: win},
+    scissors: {rock: win, paper: lose, scissors: draw},
+}
+outcome_conversion = {
+    "X": lose,
+    "Y": draw,
+    "Z": win,
+}  # decodes the input to the expected outcome
+play_for_outcome = (
+    {  # accessed with play_for_outcome[o][a], so play_for_outcome[win][rock] == paper
+        win: {rock: paper, paper: scissors, scissors: rock},
+        draw: {rock: rock, paper: paper, scissors: scissors},
+        lose: {rock: scissors, paper: rock, scissors: paper},
+    }
+)
 
 
 def round_part1(playerA, playerB) -> int:
-    win_score = scoring[game_result(playerA, playerB)]
+    win_score = scoring[game_result[playerA][playerB]]
     choice_score = scoring[playerB]
     total = win_score + choice_score
     return total
-
-
-def play_for_outcome(playerA, outcome):
-    if outcome == "lose":
-        if playerA == "rock":
-            return "scissors"
-        elif playerA == "paper":
-            return "rock"
-        else:  # scissors
-            return "paper"
-    elif outcome == "draw":
-        if playerA == "rock":
-            return "rock"
-        elif playerA == "paper":
-            return "paper"
-        else:  # scissors
-            return "scissors"
-    else:  # win
-        if playerA == "rock":
-            return "paper"
-        elif playerA == "paper":
-            return "scissors"
-        else:  # scissors
-            return "rock"
 
 
 def round_part2(playerA, outcome) -> int:
-    playerB = play_for_outcome(playerA, outcome)
-    win_score = scoring[game_result(playerA, playerB)]
-    choice_score = scoring[playerB]
-    total = win_score + choice_score
-    return total
+    playerB = play_for_outcome[outcome][playerA]
+    return round_part1(playerA, playerB)
 
 
 def convert_symbols_part1(line):
@@ -80,7 +54,7 @@ def convert_symbols_part1(line):
 
 def convert_symbols_part2(line):
     a, outcome = line.strip().split(" ")
-    return player_conversion[a], player_conversion[outcome]
+    return player_conversion[a], outcome_conversion[outcome]
 
 
 def part1():
@@ -96,6 +70,5 @@ def part2():
 
 
 if __name__ == "__main__":
-    print("p1 = 10994, p2 = 12526")
-    print(part1())
-    print(part2())
+    print("expected: p1 = 10994, p2 = 12526")
+    print(f"result:   p1 = {part1()}, p2 = {part2()}")
