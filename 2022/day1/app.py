@@ -66,5 +66,5 @@ if __name__ == "__main__":
     for index, attempt in enumerate(
         [first_attempt, second_attempt, third_attempt, fourth_attempt]
     ):
-        timing = timeit.timeit(lambda: attempt(), number=repeats)
+        timing = timeit.timeit(attempt, number=repeats)
         print(f"Attempt {index+1}: result = {attempt()}, timing = {timing:.3f}")
