@@ -73,33 +73,29 @@ def round_part2(playerA, outcome) -> int:
     return total
 
 
-def convert_symbols_to_plays_part1(line):
+def convert_symbols_part1(line):
     a, b = line.strip().split(" ")
     return player_conversion[a], player_conversion[b]
 
 
-def convert_symbols_to_plays_part2(line):
+def convert_symbols_part2(line):
     a, outcome = line.strip().split(" ")
     return player_conversion[a], player_conversion[outcome]
 
 
 def part1():
     with open("input.txt", "r") as file_in:
-        scores = [
-            round_part1(*convert_symbols_to_plays_part1(line)) for line in file_in
-        ]
+        scores = [round_part1(*convert_symbols_part1(line)) for line in file_in]
     return sum(scores)
 
 
 def part2():
     with open("input.txt", "r") as file_in:
-        scores = [
-            round_part2(*convert_symbols_to_plays_part2(line)) for line in file_in
-        ]
+        scores = [round_part2(*convert_symbols_part2(line)) for line in file_in]
     return sum(scores)
 
 
 if __name__ == "__main__":
-    print(f"p1 = 10994, p2 = 12526")
+    print("p1 = 10994, p2 = 12526")
     print(part1())
     print(part2())
