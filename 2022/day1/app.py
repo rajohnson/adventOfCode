@@ -1,5 +1,4 @@
 import re
-import collections
 
 
 def first_attempt():
@@ -47,6 +46,12 @@ def third_attempt():
 
 
 if __name__ == "__main__":
+    import timeit
+
     print(first_attempt())
     print(second_attempt())
     print(third_attempt())
+
+    print(timeit.timeit(lambda: first_attempt(), number=100))
+    print(timeit.timeit(lambda: second_attempt(), number=100))
+    print(timeit.timeit(lambda: third_attempt(), number=100))
