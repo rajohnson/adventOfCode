@@ -17,5 +17,17 @@ def part1():
     return sum(data)
 
 
+def part2():
+    with open("input.txt", "r") as file_in:
+        lines = [line.strip() for line in file_in.readlines()]
+        groups = zip(lines[0::3], lines[1::3], lines[2::3])
+        priority_scores = [
+            get_priority(set(a).intersection(b).intersection(c).pop())
+            for a, b, c in groups
+        ]
+    return sum(priority_scores)
+
+
 if __name__ == "__main__":
     print(part1())
+    print(part2())
