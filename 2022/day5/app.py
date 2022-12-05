@@ -1,13 +1,13 @@
 import collections
-from typing import List
+from typing import List, Deque
 import math
 
 
-def create_stacks(stack_string: str) -> List[collections.deque]:
+def create_stacks(stack_string: str) -> List[Deque[str]]:
     lines = stack_string.split("\n")
     del lines[-1]  # strip out the numbering line
     num_stacks = math.ceil(len(lines[0]) / 4)
-    stacks = [collections.deque() for _ in range(num_stacks)]
+    stacks: List[Deque[str]] = [collections.deque() for _ in range(num_stacks)]
     for line in reversed(lines):
         for index, stack in enumerate(stacks):
             if (c := line[(index * 4) + 1]) != " ":
@@ -15,13 +15,13 @@ def create_stacks(stack_string: str) -> List[collections.deque]:
     return stacks
 
 
-def get_top_of_each_stack(stacks: List[collections.deque]) -> str:
+def get_top_of_each_stack(stacks: List[Deque[str]]) -> str:
     return "".join([stack.pop() for stack in stacks if len(stack)])
 
 
 def execute_move(
-    start: int, end: int, num: int, stacks: List[collections.deque], isPart2: bool
-) -> List[collections.deque]:
+    start: int, end: int, num: int, stacks: List[Deque[str]], isPart2: bool
+) -> List[Deque[str]]:
     start, end = start - 1, end - 1  # -1 since stacks are 1 indexed instead of 0
     if isPart2:
         values = reversed([stacks[start].pop() for _ in range(num)])
@@ -33,8 +33,8 @@ def execute_move(
 
 
 def execute_moves(
-    move_str: str, stacks: List[collections.deque], isPart2=False
-) -> List[collections.deque]:
+    move_str: str, stacks: List[Deque[str]], isPart2=False
+) -> List[Deque[str]]:
     for line in move_str.splitlines():
         _, num, _, start, _, end = line.split()
         stacks = execute_move(int(start), int(end), int(num), stacks, isPart2)
