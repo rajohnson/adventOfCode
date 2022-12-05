@@ -21,25 +21,29 @@ def get_top_of_each_stack(stacks: List[collections.deque]) -> str:
 
 
 def execute_move(
-    start: int, end: int, num: int, stacks: List[collections.deque]
+    start: int, end: int, num: int, stacks: List[collections.deque], isPart2: bool
 ) -> List[collections.deque]:
-    for _ in range(num):
-        stacks[end - 1].append(stacks[start - 1].pop())  # -1 since stacks are 1 indexed
+    start, end = start - 1, end - 1  # -1 since stacks are 1 indexed instead of 0
+    if isPart2:
+        values = reversed([stacks[start].pop() for _ in range(num)])
+        stacks[end].extend(values)
+    else:
+        for _ in range(num):
+            stacks[end].append(stacks[start].pop())
     return stacks
 
 
 def execute_moves(
-    move_str: str, stacks: List[collections.deque]
+    move_str: str, stacks: List[collections.deque], isPart2=False
 ) -> List[collections.deque]:
     for line in move_str.splitlines():
-        print(line)
         match = re.match(r"move (\d+) from (\d+) to (\d+)", line)
         num, start, end = match.groups()
-        stacks = execute_move(int(start), int(end), int(num), stacks)
+        stacks = execute_move(int(start), int(end), int(num), stacks, isPart2)
     return stacks
 
 
-def part1(filename: str):
+def part1(filename: str) -> str:
     with open(filename, "r") as file_in:
         data = file_in.read()
     stack_string, move_string = data.split("\n\n")
@@ -48,5 +52,15 @@ def part1(filename: str):
     return get_top_of_each_stack(end_stacks)
 
 
+def part2(filename: str) -> str:
+    with open(filename, "r") as file_in:
+        data = file_in.read()
+    stack_string, move_string = data.split("\n\n")
+    starting_stacks = create_stacks(stack_string)
+    end_stacks = execute_moves(move_string, starting_stacks, isPart2=True)
+    return get_top_of_each_stack(end_stacks)
+
+
 if __name__ == "__main__":
     print(f"{part1('input.txt')=}")
+    print(f"{part2('input.txt')=}")
