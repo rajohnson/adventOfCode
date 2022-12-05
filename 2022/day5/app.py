@@ -41,24 +41,15 @@ def execute_moves(
     return stacks
 
 
-def part1(filename: str) -> str:
+def main(filename: str, isPart2: bool = False) -> str:
     with open(filename, "r") as file_in:
         data = file_in.read()
     stack_string, move_string = data.split("\n\n")
     starting_stacks = create_stacks(stack_string)
-    end_stacks = execute_moves(move_string, starting_stacks)
-    return get_top_of_each_stack(end_stacks)
-
-
-def part2(filename: str) -> str:
-    with open(filename, "r") as file_in:
-        data = file_in.read()
-    stack_string, move_string = data.split("\n\n")
-    starting_stacks = create_stacks(stack_string)
-    end_stacks = execute_moves(move_string, starting_stacks, isPart2=True)
+    end_stacks = execute_moves(move_string, starting_stacks, isPart2)
     return get_top_of_each_stack(end_stacks)
 
 
 if __name__ == "__main__":
-    print(f"{part1('input.txt')=}")
-    print(f"{part2('input.txt')=}")
+    print(f"{main('input.txt')=}")
+    print(f"{main('input.txt', isPart2=True)=}")
