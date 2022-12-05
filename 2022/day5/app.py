@@ -1,7 +1,6 @@
 import collections
 from typing import List
 import math
-import re
 
 
 def create_stacks(stack_string: str) -> List[collections.deque]:
@@ -37,8 +36,7 @@ def execute_moves(
     move_str: str, stacks: List[collections.deque], isPart2=False
 ) -> List[collections.deque]:
     for line in move_str.splitlines():
-        match = re.match(r"move (\d+) from (\d+) to (\d+)", line)
-        num, start, end = match.groups()
+        _, num, _, start, _, end = line.split()
         stacks = execute_move(int(start), int(end), int(num), stacks, isPart2)
     return stacks
 
