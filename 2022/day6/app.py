@@ -6,11 +6,11 @@ import collections
 # chars_to_unique_window('aaabb', 2) = 4
 # If no window exists the function will return None.
 def chars_to_unique_window(s: str, window_size: int) -> int:
-    window = collections.deque(maxlen=size)
+    window = collections.deque(maxlen=window_size)
     count = 1
     for c in s:
         window.append(c)
-        if len(set(window)) == size:  # filter out duplicates with set
+        if len(set(window)) == window_size:  # filter out duplicates with set
             return count
         count += 1
     return None
