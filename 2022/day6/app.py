@@ -1,5 +1,6 @@
 import collections
 
+
 # Finds the number of chars that have to be sampled before the window has all unique
 # values. This includes the characters needed to fill the window.
 # chars_to_unique_window('aaabb', 2) = 4
