@@ -1,15 +1,18 @@
 import collections
 
-
-def chars_to_unique_window(s: str, size: int) -> int:
+# Finds the number of chars that have to be sampled before the window has all unique
+# values. This includes the characters needed to fill the window.
+# chars_to_unique_window('aaabb', 2) = 4
+# If no window exists the function will return None.
+def chars_to_unique_window(s: str, window_size: int) -> int:
     window = collections.deque(maxlen=size)
     count = 1
     for c in s:
         window.append(c)
         if len(set(window)) == size:  # filter out duplicates with set
-            break
+            return count
         count += 1
-    return count
+    return None
 
 
 def part1(filename: str):
