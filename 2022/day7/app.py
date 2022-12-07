@@ -33,7 +33,6 @@ def find_root(current_dir: Union[Directory, None]) -> Union[Directory, None]:
 
     while current_dir.parent is not None:
         current_dir = current_dir.parent
-
     return current_dir
 
 
@@ -64,7 +63,7 @@ def process_command(line: str, current_dir: Union[Directory, None]) -> Directory
             if target_name == "/":
                 return Directory("/", [], None, None)
             else:
-                raise ValueError
+                raise ValueError("Root directory has not been created yet.")
 
         if target_name == "..":
             return current_dir.parent
@@ -74,7 +73,7 @@ def process_command(line: str, current_dir: Union[Directory, None]) -> Directory
                 continue
             if content.name == target_name:
                 return content
-        raise ValueError
+        raise ValueError("Couldn't find the specified directory.")
 
     elif command == "ls":
         for line in lines:
@@ -86,7 +85,7 @@ def process_command(line: str, current_dir: Union[Directory, None]) -> Directory
         return current_dir
 
     else:
-        raise NotImplementedError
+        raise NotImplementedError("Unrecognized command.")
 
 
 def generate_directory_tree(filename: str) -> Directory:
