@@ -1,9 +1,26 @@
 import collections
-from typing import Union, List
+from typing import Union, List, TypeVar
+import dataclasses
 
-Directory = collections.namedtuple("Directory", "name content parent")
+
 File = collections.namedtuple("File", "name size")
-DirectorySize = collections.namedtuple("DirectorySize", "name size")
+
+Directory = TypeVar("Directory")
+
+
+@dataclasses.dataclass
+class Directory:
+    name: str
+    content: List[Union[Directory, File]]
+    parent: Directory
+    size: Union[None, int]
+
+    def __repr__(self) -> str:
+        return (
+            f"Directory({self.name}, parent={self.parent.name}, size={self.size}, "
+            f"content={self.content})"
+        )
+
 
 max_size = 100_000
 capacity = 70_000_000
@@ -20,22 +37,21 @@ def find_root(current_dir: Union[Directory, None]) -> Union[Directory, None]:
     return current_dir
 
 
-def get_list_of_directory_sizes(directory: Directory) -> List[int]:
-    size_list = [DirectorySize(directory.name, find_directory_size(directory))]
+def get_list_of_directories(directory: Directory) -> List[Directory]:
+    directory_list = [directory]
     for item in directory.content:
         if isinstance(item, Directory):
-            size_list += get_list_of_directory_sizes(item)
-    return size_list
+            directory_list += get_list_of_directories(item)
+    return directory_list
 
 
-def find_directory_size(directory: Directory) -> int:
+def assign_directory_sizes(directory: Directory) -> None:
     total = 0
     for item in directory.content:
-        if isinstance(item, File):
-            total += item.size
-        else:
-            total += find_directory_size(item)
-    return total
+        if item.size is None:
+            assign_directory_sizes(item)
+        total += item.size
+    directory.size = total
 
 
 # builds the tree of the file system
@@ -46,7 +62,7 @@ def process_command(line: str, current_dir: Union[Directory, None]) -> Directory
         _, target_name = line.split()
         if current_dir is None:
             if target_name == "/":
-                return Directory("/", [], None)
+                return Directory("/", [], None, None)
             else:
                 raise ValueError
 
@@ -66,7 +82,7 @@ def process_command(line: str, current_dir: Union[Directory, None]) -> Directory
             if size.isdigit():
                 current_dir.content.append(File(name, int(size)))
             else:
-                current_dir.content.append(Directory(name, [], current_dir))
+                current_dir.content.append(Directory(name, [], current_dir, None))
         return current_dir
 
     else:
@@ -86,7 +102,11 @@ def generate_directory_tree(filename: str) -> Directory:
     for command_group in command_groups:
         directory = process_command(command_group, directory)
 
-    return find_root(directory)
+    root = find_root(directory)
+
+    assign_directory_sizes(root)
+
+    return root
 
 
 def part1(filename: str):
@@ -94,7 +114,7 @@ def part1(filename: str):
     return sum(
         [
             directory.size
-            for directory in get_list_of_directory_sizes(root_directory)
+            for directory in get_list_of_directories(root_directory)
             if directory.size <= max_size
         ]
     )
@@ -102,12 +122,12 @@ def part1(filename: str):
 
 def part2(filename: str):
     root_directory = generate_directory_tree(filename)
-    directory_sizes = get_list_of_directory_sizes(root_directory)
-    total_space = max(directory_sizes, key=lambda x: x.size).size
+    directories = get_list_of_directories(root_directory)
+    total_space = max(directories, key=lambda x: x.size).size
     free_space = capacity - total_space
     space_needed = required_space - free_space
     return min(
-        [directory for directory in directory_sizes if directory.size >= space_needed],
+        [directory for directory in directories if directory.size >= space_needed],
         key=lambda x: x.size,
     ).size
 
