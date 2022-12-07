@@ -1,6 +1,5 @@
 import collections
 from typing import Union, List
-import itertools
 
 Directory = collections.namedtuple("Directory", "name content parent")
 File = collections.namedtuple("File", "name size")
@@ -74,30 +73,43 @@ def process_command(line: str, current_dir: Union[Directory, None]) -> Directory
         raise NotImplementedError
 
 
-def part1(filename: str):
+def generate_directory_tree(filename: str) -> Directory:
     with open(filename, "r") as file_in:
         command_groups = [
             cmd_stripped
             for cmd in file_in.read().split("$")
             if (cmd_stripped := cmd.strip())
         ]
+
+    # build a tree from the commands
     directory: Union[Directory, None] = None
     for command_group in command_groups:
         directory = process_command(command_group, directory)
-    directory = find_root(directory)
+
+    return find_root(directory)
+
+
+def part1(filename: str):
+    root_directory = generate_directory_tree(filename)
     return sum(
         [
             directory.size
-            for directory in get_list_of_directory_sizes(find_root(directory))
+            for directory in get_list_of_directory_sizes(root_directory)
             if directory.size <= max_size
         ]
     )
 
 
 def part2(filename: str):
-    with open(filename, "r") as file_in:
-        data = file_in.read()
-    return None
+    root_directory = generate_directory_tree(filename)
+    directory_sizes = get_list_of_directory_sizes(root_directory)
+    total_space = max(directory_sizes, key=lambda x: x.size).size
+    free_space = capacity - total_space
+    space_needed = required_space - free_space
+    return min(
+        [directory for directory in directory_sizes if directory.size >= space_needed],
+        key=lambda x: x.size,
+    ).size
 
 
 if __name__ == "__main__":
