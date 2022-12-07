@@ -111,24 +111,21 @@ def generate_directory_tree(filename: str) -> Directory:
 def part1(filename: str):
     root_directory = generate_directory_tree(filename)
     return sum(
-        [
-            directory.size
-            for directory in get_list_of_directories(root_directory)
-            if directory.size <= max_size
-        ]
+        directory.size
+        for directory in get_list_of_directories(root_directory)
+        if directory.size <= max_size
     )
 
 
 def part2(filename: str):
     root_directory = generate_directory_tree(filename)
     directories = get_list_of_directories(root_directory)
-    total_space = max(directories, key=lambda x: x.size).size
+    total_space = max(directory.size for directory in directories)
     free_space = capacity - total_space
     space_needed = required_space - free_space
     return min(
-        [directory for directory in directories if directory.size >= space_needed],
-        key=lambda x: x.size,
-    ).size
+        directory.size for directory in directories if directory.size >= space_needed
+    )
 
 
 if __name__ == "__main__":
