@@ -7,6 +7,7 @@ import itertools
 class Tree:
     height: int
     visible: bool = False
+    score: int = 0
 
 
 def build_grid(filename: str) -> List[List[Tree]]:
@@ -35,6 +36,35 @@ def set_visibility(grid: List[List[Tree]]) -> None:
         set_visibility_line(col[::-1])
 
 
+# finds the score for a tree given a view (index 0 is closest) and height
+def score(trees: List[Tree], height: int) -> int:
+    count = 0
+    for tree in trees:
+        count += 1
+        if tree.height >= height:
+            break
+    return count
+
+
+def set_scores(grid: List[List[Tree]]) -> None:
+    flipped_grid = list(zip(*grid))
+    for x, row in enumerate(grid):
+        for y, tree in enumerate(row):
+            if (
+                x == 0
+                or x == len(row) - 1
+                or y == 0
+                or y == len(flipped_grid[0]) - 1
+            ):
+                tree.score = 0
+                continue
+            left = score((reversed(row[:y])), tree.height)
+            right = score(row[y + 1 :], tree.height)
+            up = score(list(reversed(flipped_grid[y][:x])), tree.height)
+            down = score(flipped_grid[y][x + 1 :], tree.height)
+            tree.score = left * right * up * down
+
+
 def part1(filename: str):
     grid = build_grid(filename)
     set_visibility(grid)
@@ -42,7 +72,9 @@ def part1(filename: str):
 
 
 def part2(filename: str):
-    return None
+    grid = build_grid(filename)
+    set_scores(grid)
+    return max([tree.score for tree in itertools.chain(*grid)])
 
 
 if __name__ == "__main__":
