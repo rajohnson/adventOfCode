@@ -7,53 +7,58 @@ class Coordinate:
         return f"Coordinate({self.x}, {self.y})"
 
 
-def update_tail(head: Coordinate, tail: Coordinate):
-    deltaX = head.x - tail.x
-    deltaY = head.y - tail.y
+def update_segment(leader: Coordinate, follower: Coordinate):
+    deltaX = leader.x - follower.x
+    deltaY = leader.y - follower.y
     if abs(deltaX) == 2 and abs(deltaY) == 1:
-        tail.x += deltaX // abs(deltaX)
-        tail.y += deltaY // abs(deltaY)
+        follower.x += deltaX // abs(deltaX)
+        follower.y += deltaY // abs(deltaY)
     elif abs(deltaX) == 1 and abs(deltaY) == 2:
-        tail.x += deltaX // abs(deltaX)
-        tail.y += deltaY // abs(deltaY)
+        follower.x += deltaX // abs(deltaX)
+        follower.y += deltaY // abs(deltaY)
     elif abs(deltaX) == 2:
-        tail.x += deltaX // abs(deltaX)
+        follower.x += deltaX // abs(deltaX)
     elif abs(deltaY) == 2:
-        tail.y += deltaY // abs(deltaY)
-    return tail
+        follower.y += deltaY // abs(deltaY)
+    return follower
 
 
 def process_move(
-    line: str, head: Coordinate, tail: Coordinate, visited: list[Coordinate]
-) -> list[Coordinate, Coordinate, list[Coordinate]]:
+    line: str, rope: list[Coordinate], visited: list[Coordinate]
+) -> list[list[Coordinate], list[Coordinate]]:
     direction, num = line.split()
     for _ in range(int(num)):
         if direction == "R":
-            head.x += 1
+            rope[0].x += 1
         elif direction == "L":
-            head.x -= 1
+            rope[0].x -= 1
         elif direction == "U":
-            head.y += 1
+            rope[0].y += 1
         elif direction == "D":
-            head.y -= 1
-        tail = update_tail(head, tail)
-        visited.add((tail.x, tail.y))
+            rope[0].y -= 1
+        for leader, follower in zip(rope, rope[1:]):
+            update_segment(leader, follower)
+        visited.add((rope[-1].x, rope[-1].y))
 
-    return head, tail, visited
+    return rope, visited
 
 
 def part1(filename: str):
-    head = Coordinate(0, 0)
-    tail = Coordinate(0, 0)
+    rope = [Coordinate(0, 0), Coordinate(0, 0)]
     visited = set()
     with open(filename, "r") as file_in:
         for line in file_in:
-            head, tail, visited = process_move(line, head, tail, visited)
+            rope, visited = process_move(line, rope, visited)
     return len(visited)
 
 
 def part2(filename: str):
-    return None
+    rope = [Coordinate(0, 0) for _ in range(10)]
+    visited = set()
+    with open(filename, "r") as file_in:
+        for line in file_in:
+            rope, visited = process_move(line, rope, visited)
+    return len(visited)
 
 
 if __name__ == "__main__":
