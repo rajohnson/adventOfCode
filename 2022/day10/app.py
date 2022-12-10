@@ -2,49 +2,30 @@ import itertools
 import collections
 
 
-Status = collections.namedtuple("Status", "accumulator_delta cycles")
+def get_signal_strength(history: list[int], cycle_of_interest: int) -> int:
+    return history[cycle_of_interest - 1] * cycle_of_interest
 
 
-def cycles_for_instruction(line: str) -> int:
-    if line.startswith("noop"):
-        return 1
-    elif line.startswith("addx"):
-        return 2
-    else:
-        raise NotImplementedError
-
-
-def accumulator_change(line: str) -> int:
-    if line.startswith("noop"):
-        return 0
-    elif line.startswith("addx"):
-        _, value = line.split()
-        return int(value)
-    else:
-        raise NotImplementedError
-
-
-def get_signal_strength(history: list[Status], cycle_of_interest: int) -> int:
-    running_total, total_cycles = 1, 0  # accumulator starts at 1
-    for entry in history:
-        if (
-            new_total_cycles := total_cycles + entry.cycles
-        ) < cycle_of_interest:
-            running_total += entry.accumulator_delta
-            total_cycles = new_total_cycles
-    return running_total * cycle_of_interest
+def build_system_state_history(filename: str) -> list[int]:
+    with open(filename, "r") as file_in:
+        data = file_in.readlines()
+    accumulator = 1
+    history = []
+    for line in data:
+        if line.startswith("noop"):
+            history.append(accumulator)
+        elif line.startswith("addx"):
+            history.append(accumulator)
+            history.append(accumulator)
+            _, value = line.split()
+            accumulator += int(value)
+        else:
+            raise NotImplementedError
+    return history
 
 
 def part1(filename: str):
-    with open(filename, "r") as file_in:
-        data = file_in.readlines()
-    system_status = [
-        Status(
-            accumulator_change(instruction),
-            cycles_for_instruction(instruction),
-        )
-        for instruction in data
-    ]
+    system_status = build_system_state_history(filename)
     cycles_of_interest = [20 + 40 * i for i in range(6)]
     signal_strengths = [
         get_signal_strength(system_status, cycle)
