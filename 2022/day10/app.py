@@ -1,7 +1,3 @@
-import itertools
-import collections
-
-
 def get_signal_strength(history: list[int], cycle_of_interest: int) -> int:
     return history[cycle_of_interest - 1] * cycle_of_interest
 
@@ -35,7 +31,22 @@ def part1(filename: str):
     return sum(signal_strengths)
 
 
+def render_screen(screen: list[str]) -> None:
+    screen_str = "".join(screen)
+    print("\n\n")
+    for i in range(6):
+        print(f"{screen_str[40*i:40*(i+1)]}")
+
+
 def part2(filename: str):
+    system_status = build_system_state_history(filename)
+    screen = ["." for _ in range(240)]
+    for cycle, x in enumerate(system_status):
+        position = cycle % 40
+        sprite = set([x - 1, x, x + 1])
+        if position in sprite:
+            screen[cycle] = "#"
+    render_screen(screen)
     return None
 
 
