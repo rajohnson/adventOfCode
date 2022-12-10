@@ -20,20 +20,19 @@ def build_system_state_history(filename: str) -> list[int]:
     return history
 
 
-def part1(filename: str):
+def part1(filename: str) -> int:
     system_status = build_system_state_history(filename)
     cycles_of_interest = [20 + 40 * i for i in range(6)]
     signal_strengths = [
         get_signal_strength(system_status, cycle)
         for cycle in cycles_of_interest
     ]
-
     return sum(signal_strengths)
 
 
 def render_screen(screen: list[str]) -> None:
     screen_str = "".join(screen)
-    print("\n\n")
+    print()
     for i in range(6):
         print(f"{screen_str[40*i:40*(i+1)]}")
 
@@ -52,4 +51,4 @@ def part2(filename: str):
 
 if __name__ == "__main__":
     print(f"{part1('input.txt')=}")
-    print(f"{part2('input.txt')=}")
+    part2("input.txt")
