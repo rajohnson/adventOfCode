@@ -10,16 +10,24 @@ class Coordinate:
 def update_segment(leader: Coordinate, follower: Coordinate):
     deltaX = leader.x - follower.x
     deltaY = leader.y - follower.y
-    if abs(deltaX) == 2 and abs(deltaY) == 1:
-        follower.x += deltaX // abs(deltaX)
-        follower.y += deltaY // abs(deltaY)
+    if abs(deltaX) <= 1 and abs(deltaY) <= 1:
+        pass
+    elif (abs(deltaX) == 2 and abs(deltaY)) == 2:
+        follower.x += (deltaX // abs(deltaX)) * (abs(deltaX) - 1)
+        follower.y += (deltaY // abs(deltaY)) * (abs(deltaY) - 1)
+    elif (abs(deltaX) == 2 and abs(deltaY)) == 1:
+        follower.x += (deltaX // abs(deltaX)) * (abs(deltaX) - 1)
+        follower.y += (deltaY // abs(deltaY)) * abs(deltaY)
     elif abs(deltaX) == 1 and abs(deltaY) == 2:
-        follower.x += deltaX // abs(deltaX)
-        follower.y += deltaY // abs(deltaY)
-    elif abs(deltaX) == 2:
-        follower.x += deltaX // abs(deltaX)
-    elif abs(deltaY) == 2:
-        follower.y += deltaY // abs(deltaY)
+        follower.x += (deltaX // abs(deltaX)) * abs(deltaX)
+        follower.y += (deltaY // abs(deltaY)) * (abs(deltaY) - 1)
+    elif abs(deltaX) == 2 and abs(deltaY) == 0:
+        follower.x += (deltaX // abs(deltaX)) * (abs(deltaX) - 1)
+    elif abs(deltaX) == 0 and abs(deltaY) == 2:
+        follower.y += (deltaY // abs(deltaY)) * (abs(deltaY) - 1)
+    else:
+        print(f"case not handled: {leader=} {follower=}")
+        raise NotImplementedError
     return follower
 
 
@@ -62,5 +70,8 @@ def part2(filename: str):
 
 
 if __name__ == "__main__":
-    print(f"{part1('input.txt')=}")
-    print(f"{part2('input.txt')=}")
+    print(f"{part1('example.txt')=} 13")
+    print(f"{part1('input.txt')=} 5858")
+    print(f"{part2('example.txt')=} 1")
+    print(f"{part2('larger_example.txt')=} 36")
+    print(f"{part2('input.txt')=} ")
