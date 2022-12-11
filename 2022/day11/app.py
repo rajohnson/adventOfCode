@@ -35,25 +35,33 @@ class Monkey:
         )
 
 
-def part1(filename: str):
+def get_monkeys(filename: str) -> list[Monkey]:
     with open(filename, "r") as file_in:
         data = file_in.read()
     data = data.replace("old", "item").replace("new = ", "")
     monkeys = [
         Monkey.from_str(monkey_str) for monkey_str in data.split("\n\n")
     ]
+    return monkeys
+
+
+def run_round(monkeys: list[Monkey], worry_divider: int = 3) -> None:
+    for monkey in monkeys:
+        for item in monkey.items:
+            monkey.inspections += 1
+            item = eval(monkey.operation, {}, {"item": item})
+            item = item // worry_divider
+            if item % monkey.divisibility_num == 0:
+                monkeys[monkey.dest_true].items.append(item)
+            else:
+                monkeys[monkey.dest_false].items.append(item)
+        monkey.items = []
+
+
+def part1(filename: str):
+    monkeys = get_monkeys(filename)
     for round in range(20):
-        for monkey in monkeys:
-            for item in monkey.items:
-                monkey.inspections += 1
-                item = eval(monkey.operation, {}, {"item": item})
-                # item = eval(monkey.operation)
-                item = item // 3
-                if item % monkey.divisibility_num == 0:
-                    monkeys[monkey.dest_true].items.append(item)
-                else:
-                    monkeys[monkey.dest_false].items.append(item)
-            monkey.items = []
+        run_round(monkeys, 3)
     a, b = sorted([monkey.inspections for monkey in monkeys])[-2:]
     return a * b
 
