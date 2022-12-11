@@ -1,6 +1,7 @@
 import dataclasses
 import re
 import functools
+from typing import Callable
 
 
 @dataclasses.dataclass
@@ -23,8 +24,13 @@ class Monkey:
             ),
             monkey_str,
         )
+        if not isinstance(monkey_match, re.Match):
+            raise ValueError("Couldn't parse input string.")
         id, items, operation, divisibility_num, dest_true, dest_false = [
-            monkey_match.group(i + 1) for i in range(6)
+            monkey_match.group(
+                i + 1
+            )  # group 0 is the entire match, then each group follows
+            for i in range(6)
         ]
         return cls(
             id=int(id),
@@ -46,7 +52,9 @@ def get_monkeys(filename: str) -> list[Monkey]:
     return monkeys
 
 
-def run_round(monkeys: list[Monkey], worry_change: callable) -> None:
+def run_round(
+    monkeys: list[Monkey], worry_change: Callable[[int], int]
+) -> None:
     for monkey in monkeys:
         for item in monkey.items:
             monkey.inspections += 1
@@ -59,7 +67,7 @@ def run_round(monkeys: list[Monkey], worry_change: callable) -> None:
         monkey.items = []
 
 
-def part1(filename: str):
+def part1(filename: str) -> int:
     monkeys = get_monkeys(filename)
     for round in range(20):
         run_round(monkeys, lambda x: x // 3)
@@ -67,7 +75,7 @@ def part1(filename: str):
     return a * b
 
 
-def part2(filename: str):
+def part2(filename: str) -> int:
     monkeys = get_monkeys(filename)
     divisibilty_product = functools.reduce(
         lambda a, b: a * b, (monkey.divisibility_num for monkey in monkeys)
