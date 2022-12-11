@@ -1,5 +1,6 @@
 import dataclasses
 import re
+import functools
 
 
 @dataclasses.dataclass
@@ -67,7 +68,14 @@ def part1(filename: str):
 
 
 def part2(filename: str):
-    return None
+    monkeys = get_monkeys(filename)
+    divisibilty_product = functools.reduce(
+        lambda a, b: a * b, (monkey.divisibility_num for monkey in monkeys)
+    )
+    for round in range(10_000):
+        run_round(monkeys, lambda x: x % divisibilty_product)
+    a, b = sorted([monkey.inspections for monkey in monkeys])[-2:]
+    return a * b
 
 
 if __name__ == "__main__":
