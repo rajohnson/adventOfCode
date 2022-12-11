@@ -45,12 +45,12 @@ def get_monkeys(filename: str) -> list[Monkey]:
     return monkeys
 
 
-def run_round(monkeys: list[Monkey], worry_divider: int = 3) -> None:
+def run_round(monkeys: list[Monkey], worry_change: callable) -> None:
     for monkey in monkeys:
         for item in monkey.items:
             monkey.inspections += 1
             item = eval(monkey.operation, {}, {"item": item})
-            item = item // worry_divider
+            item = worry_change(item)
             if item % monkey.divisibility_num == 0:
                 monkeys[monkey.dest_true].items.append(item)
             else:
@@ -61,7 +61,7 @@ def run_round(monkeys: list[Monkey], worry_divider: int = 3) -> None:
 def part1(filename: str):
     monkeys = get_monkeys(filename)
     for round in range(20):
-        run_round(monkeys, 3)
+        run_round(monkeys, lambda x: x // 3)
     a, b = sorted([monkey.inspections for monkey in monkeys])[-2:]
     return a * b
 
