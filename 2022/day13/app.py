@@ -1,4 +1,5 @@
 import itertools
+import ast
 
 
 def read_pairs(filename: str) -> list[str]:
@@ -34,13 +35,8 @@ def compare_pair(a, b):
 def part1(filename: str):
     correct_order_ndx = []
     for index, (a_str, b_str) in enumerate(read_pairs(filename)):
-        a = eval(a_str)
-        b = eval(b_str)
-        print(index + 1)
-        print(a)
-        print(b)
-        print(compare_pair(a, b))
-        print()
+        a = ast.literal_eval(a_str)
+        b = ast.literal_eval(b_str)
         if compare_pair(a, b):
             correct_order_ndx.append(index + 1)
     return sum(correct_order_ndx)
