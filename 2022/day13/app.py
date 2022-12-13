@@ -32,11 +32,17 @@ def compare_pair(a, b):
     raise ValueError("didn't handle case")
 
 
-def part1(filename: str):
+def part1(filename: str, debug: bool = False):
     correct_order_ndx = []
     for index, (a_str, b_str) in enumerate(read_pairs(filename)):
         a = ast.literal_eval(a_str)
         b = ast.literal_eval(b_str)
+        if debug:
+            print(index + 1)
+            print(a)
+            print(b)
+            print(compare_pair(a, b))
+            print()
         if compare_pair(a, b):
             correct_order_ndx.append(index + 1)
     return sum(correct_order_ndx)
