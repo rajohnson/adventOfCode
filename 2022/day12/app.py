@@ -1,5 +1,6 @@
 import dataclasses
 import collections
+from typing import Callable
 
 
 @dataclasses.dataclass
@@ -41,7 +42,7 @@ def neighbor_navigable(
     max_y = len(grid)
     if (0 <= x < max_x) and (0 <= y < max_y):
         if grid[y][x].distance is None:
-            if (grid[y][x].height - point.height) <= 1:
+            if (grid[y][x].height - point.height) >= -1:
                 return True
     return False
 
@@ -59,16 +60,23 @@ def render_distance(grid: list[list[Point]]) -> None:
         )
 
 
-# return the length of the shortest path from start to end
-def bfs(start: Point, end: Point, grid: list[list[Point]]) -> int:
-    path_queue = collections.deque([start])
-    start.distance = 0
+# return the length of the shortest path from end to start
+def bfs(
+    is_target: Callable[[Point], bool],
+    end: Point,
+    grid: list[list[Point]],
+    debug: bool = False,
+) -> int:
+    path_queue = collections.deque([end])
+    end.distance = 0
     while path_queue:
         current = path_queue.popleft()
         if current.distance is None:
             raise ValueError("distance was not assigned")
-        if current is end:
-            break
+        if is_target(current):
+            if current.distance is None:
+                raise ValueError("distance was not set.")
+            return current.distance
         possible_neighbors = [
             (current.x - 1, current.y),
             (current.x + 1, current.y),
@@ -81,16 +89,15 @@ def bfs(start: Point, end: Point, grid: list[list[Point]]) -> int:
                 neighbor = grid[neighbor_y][neighbor_x]
                 neighbor.distance = current.distance + 1
                 path_queue.append(neighbor)
-        # render_distance(grid)
+        if debug:
+            render_distance(grid)
 
-    if end.distance is None:
-        raise ValueError("search didn't reach end")
-    return end.distance
+    raise ValueError("search didn't reach goal")
 
 
-def part1(filename: str):
+def part1(filename: str) -> int:
     start, end, grid = create_grid(filename)
-    return bfs(start, end, grid)
+    return bfs(lambda x: x is start, end, grid)
 
 
 def part2(filename: str):
@@ -98,5 +105,6 @@ def part2(filename: str):
 
 
 if __name__ == "__main__":
+    print(f"{part1('example.txt')=}")
     print(f"{part1('input.txt')=}")
     print(f"{part2('input.txt')=}")
