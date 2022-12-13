@@ -1,4 +1,5 @@
 import itertools
+import functools
 import ast
 
 
@@ -49,10 +50,20 @@ def part1(filename: str, debug: bool = False):
 
 
 def part2(filename: str):
-    return None
+    with open(filename, "r") as file_in:
+        lines = [
+            ast.literal_eval(cleaned_line)
+            for line in file_in.readlines()
+            if (cleaned_line := line.strip())
+        ]
+    lines.append([[2]])
+    lines.append([[6]])
+    lines.sort(key=functools.cmp_to_key(compare_pair), reverse=True)
+    return (lines.index([[2]]) + 1) * (lines.index([[6]]) + 1)
 
 
 if __name__ == "__main__":
     print(f"{part1('example.txt')=}")
     print(f"{part1('input.txt')=}")
+    print(f"{part2('example.txt')=}")
     print(f"{part2('input.txt')=}")
