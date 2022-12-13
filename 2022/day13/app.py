@@ -3,7 +3,7 @@ import functools
 import ast
 
 
-def read_pairs(filename: str) -> list[str]:
+def read_pairs(filename: str) -> list[list[str]]:
     with open(filename, "r") as file_in:
         data = file_in.read()
     return [pair.splitlines() for pair in data.split("\n\n")]
@@ -11,7 +11,7 @@ def read_pairs(filename: str) -> list[str]:
 
 # return true if left side is lower, false if right side is lower, None if
 # both are equal
-def compare_pair(a, b):
+def compare_pair(a: int | list, b: int | list) -> int:
     if a is None:
         return 1
     if b is None:
@@ -22,7 +22,6 @@ def compare_pair(a, b):
         return 1 if a < b else -1
     if isinstance(a, list) and isinstance(b, list):
         for pair in itertools.zip_longest(a, b):
-            # print(pair)
             if (result := compare_pair(*pair)) != 0:
                 return result
         return 0
