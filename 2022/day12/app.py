@@ -100,11 +100,13 @@ def part1(filename: str) -> int:
     return bfs(lambda x: x is start, end, grid)
 
 
-def part2(filename: str):
-    return None
+def part2(filename: str) -> int:
+    _, end, grid = create_grid(filename)
+    return bfs(lambda x: x.height is ord("a"), end, grid)
 
 
 if __name__ == "__main__":
     print(f"{part1('example.txt')=}")
     print(f"{part1('input.txt')=}")
+    print(f"{part2('example.txt')=}")
     print(f"{part2('input.txt')=}")
