@@ -6,7 +6,7 @@ MULTIPLIER = 811589153
 ROUNDS = 10
 
 
-def part1(filename: str):
+def part1(filename: str) -> int:
     with open(filename, "r") as file_in:
         data = [Entry(int(num), id) for id, num in enumerate(file_in.readlines())]
         id_queue = data.copy()
@@ -25,7 +25,7 @@ def part1(filename: str):
     return sum([data[index1000].value, data[index2000].value, data[index3000].value])
 
 
-def part2(filename: str):
+def part2(filename: str) -> int:
     with open(filename, "r") as file_in:
         data = [
             Entry(int(num) * MULTIPLIER, id)
