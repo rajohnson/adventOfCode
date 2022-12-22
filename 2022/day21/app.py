@@ -1,7 +1,6 @@
 import re
 import dataclasses
 from typing import Optional
-import collections
 
 
 @dataclasses.dataclass
