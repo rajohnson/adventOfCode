@@ -1,4 +1,3 @@
-import copy
 import re
 import dataclasses
 from typing import Optional
@@ -27,7 +26,7 @@ def find_value(monkey: Monkey, monkeys: dict[str, Monkey]) -> None:
         "+": lambda a, b: a + b,
         "-": lambda a, b: a - b,
         "*": lambda a, b: a * b,
-        "/": lambda a, b: a / b,
+        "/": lambda a, b: a // b,
     }
     if monkey.value is not None:
         return
@@ -43,6 +42,65 @@ def find_value(monkey: Monkey, monkeys: dict[str, Monkey]) -> None:
     monkey.value = operation[monkey.operator](
         monkeys[monkey.a].value, monkeys[monkey.b].value
     )
+
+
+def solve_backwards(monkey: Monkey, target: int, monkeys: dict[str, Monkey]) -> None:
+    # value is already set? - no need to continue
+    if monkey.value is not None:
+        return
+
+    monkey.value = target
+
+    # terminal monkey
+    if monkey.a is None and monkey.b is None:
+        return
+    monkey_a = monkeys[monkey.a]
+    monkey_b = monkeys[monkey.b]
+
+    # not fully solved - solve and continue
+    if monkey_a.value is None and monkey_b.value is None:
+        solve_for_one_branch(monkey, monkeys)
+
+    new_target = None
+    # a is missing
+    if monkey_a.value is None and monkey_b.value is not None:
+        if monkey.operator == "+":
+            new_target = monkey.value - monkey_b.value
+        elif monkey.operator == "-":
+            new_target = monkey.value + monkey_b.value
+        elif monkey.operator == "*":
+            new_target = monkey.value // monkey_b.value
+        elif monkey.operator == "/":
+            new_target = monkey.value * monkey_b.value
+        else:
+            raise NotImplementedError
+        solve_backwards(monkey_a, new_target, monkeys)
+    # b is missing
+    elif monkey_b.value is None and monkey_a.value is not None:
+        if monkey.operator == "+":
+            new_target = monkey.value - monkey_a.value
+        elif monkey.operator == "-":
+            new_target = monkey_a.value - monkey.value
+        elif monkey.operator == "*":
+            new_target = monkey.value // monkey_a.value
+        elif monkey.operator == "/":
+            new_target = monkey_a.value // monkey.value
+        else:
+            raise NotImplementedError
+        solve_backwards(monkey_b, new_target, monkeys)
+    else:
+        raise ValueError
+
+
+def solve_for_one_branch(parent: Monkey, monkeys: dict[str, Monkey]):
+    child_a = monkeys[parent.a]
+    child_b = monkeys[parent.b]
+    while (
+        child_a in (unassigned := get_unassigned_monkeys(monkeys))
+        and child_b in unassigned
+    ):
+        for monkey in unassigned:
+            find_value(monkey, monkeys)
 
 
 def build_monkeys(filename: str) -> dict[str, Monkey]:
@@ -74,47 +132,33 @@ def part1(filename: str) -> int:
 
 
 def part2(filename: str) -> int:
-    original_monkeys = build_monkeys(filename)
-    original_monkeys["humn"].value = None
-    root_a = original_monkeys[original_monkeys["root"].a]
-    root_b = original_monkeys[original_monkeys["root"].b]
+    monkeys = build_monkeys(filename)
+
+    root = monkeys["root"]
+    root_a = monkeys[root.a]
+    root_b = monkeys[root.b]
+    human = monkeys["humn"]
+
+    # Don't solve anything that depends on the human
+    human.value = None
+
     # solve as far as possible
-    while (
-        root_a in (unassigned := get_unassigned_monkeys(original_monkeys))
-        and root_b in unassigned
-    ):
-        for monkey in unassigned:
-            find_value(monkey, original_monkeys)
-    # figure out which is target
-    target = (
-        original_monkeys[original_monkeys["root"].a].value
-        if original_monkeys[original_monkeys["root"].a].value is not None
-        else original_monkeys[original_monkeys["root"].b].value
-    )
-    test_value = 0
-    while True:
-        monkeys = copy.deepcopy(original_monkeys)
-        root_a = monkeys[monkeys["root"].a]
-        root_b = monkeys[monkeys["root"].b]
-        monkeys["humn"].value = test_value  # set the new test_value
+    solve_for_one_branch(root, monkeys)
 
-        # solve
-        while unassigned := get_unassigned_monkeys(monkeys):
-            for monkey in unassigned:
-                find_value(monkey, monkeys)
+    # figure out value that is set
+    target = root_a.value if root_a.value is not None else root_b.value
 
-        # test to see if the values are equal
-        if root_a.value == root_b.value:
-            break
-        else:
-            test_value += 1
-    return test_value
+    # solve from top downward
+    if root_a.value is None:
+        solve_backwards(root_a, target, monkeys)
+    else:
+        solve_backwards(root_b, target, monkeys)
+
+    return human.value
 
 
 if __name__ == "__main__":
     print(f"{part1('example.txt')=} 152")
-    print(f"{part1('input.txt')=} 43699799094202")
+    print(f"{part1('input.txt')=}")
     print(f"{part2('example.txt')=} 301")
-    print(
-        f"{part2('input.txt')=} 3375719472770"
-    )  # found this with binary search in debugger...brute force wasn't working
+    print(f"{part2('input.txt')=}")
