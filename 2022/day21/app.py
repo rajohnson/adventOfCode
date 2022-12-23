@@ -1,3 +1,4 @@
+import copy
 import re
 import dataclasses
 from typing import Optional
@@ -26,7 +27,7 @@ def find_value(monkey: Monkey, monkeys: dict[str, Monkey]) -> None:
         "+": lambda a, b: a + b,
         "-": lambda a, b: a - b,
         "*": lambda a, b: a * b,
-        "/": lambda a, b: a // b,
+        "/": lambda a, b: a / b,
     }
     if monkey.value is not None:
         return
@@ -36,7 +37,7 @@ def find_value(monkey: Monkey, monkeys: dict[str, Monkey]) -> None:
         or monkey.operator is None
         or monkey.operator not in operation
     ):
-        raise ValueError
+        return
     if monkeys[monkey.a].value is None or monkeys[monkey.b].value is None:
         return
     monkey.value = operation[monkey.operator](
@@ -61,23 +62,59 @@ def build_monkeys(filename: str) -> dict[str, Monkey]:
         for match in COMPOUND_RE.finditer(data)
     }
     monkeys = {**digit_monkeys, **compound_monkeys}
-    while unassigned := get_unassigned_monkeys(monkeys):
-        for monkey in unassigned:
-            find_value(monkey, monkeys)
     return monkeys
 
 
 def part1(filename: str) -> int:
     monkeys = build_monkeys(filename)
+    while unassigned := get_unassigned_monkeys(monkeys):
+        for monkey in unassigned:
+            find_value(monkey, monkeys)
     return monkeys["root"].value
 
 
-def part2(filename: str):
-    return None
+def part2(filename: str) -> int:
+    original_monkeys = build_monkeys(filename)
+    original_monkeys["humn"].value = None
+    root_a = original_monkeys[original_monkeys["root"].a]
+    root_b = original_monkeys[original_monkeys["root"].b]
+    # solve as far as possible
+    while (
+        root_a in (unassigned := get_unassigned_monkeys(original_monkeys))
+        and root_b in unassigned
+    ):
+        for monkey in unassigned:
+            find_value(monkey, original_monkeys)
+    # figure out which is target
+    target = (
+        original_monkeys[original_monkeys["root"].a].value
+        if original_monkeys[original_monkeys["root"].a].value is not None
+        else original_monkeys[original_monkeys["root"].b].value
+    )
+    test_value = 0
+    while True:
+        monkeys = copy.deepcopy(original_monkeys)
+        root_a = monkeys[monkeys["root"].a]
+        root_b = monkeys[monkeys["root"].b]
+        monkeys["humn"].value = test_value  # set the new test_value
+
+        # solve
+        while unassigned := get_unassigned_monkeys(monkeys):
+            for monkey in unassigned:
+                find_value(monkey, monkeys)
+
+        # test to see if the values are equal
+        if root_a.value == root_b.value:
+            break
+        else:
+            test_value += 1
+    return test_value
 
 
 if __name__ == "__main__":
     print(f"{part1('example.txt')=} 152")
     print(f"{part1('input.txt')=} 43699799094202")
-    # print(f"{part2('example.txt')=}")
-    # print(f"{part2('input.txt')=}")
+    print(f"{part2('example.txt')=} 301")
+    print(
+        f"{part2('input.txt')=} 3375719472770"
+    )  # found this with binary search in debugger...brute force wasn't working
