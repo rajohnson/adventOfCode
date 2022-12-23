@@ -16,8 +16,10 @@ DIGIT_RE = re.compile(r"(\w{4}): (\d+)")
 COMPOUND_RE = re.compile(r"(\w{4}): (\w{4}) ([+\-*\/]) (\w{4})")
 
 
-def get_unassigned_monkeys(monkeys: dict[int, Monkey]) -> list[Monkey]:
-    unassigned_monkeys = [monkey for monkey in monkeys.values() if monkey.value is None]
+def get_unassigned_monkeys(monkeys: dict[str, Monkey]) -> list[Monkey]:
+    unassigned_monkeys = [
+        monkey for monkey in monkeys.values() if monkey.value is None
+    ]
     return unassigned_monkeys
 
 
@@ -44,7 +46,9 @@ def find_value(monkey: Monkey, monkeys: dict[str, Monkey]) -> None:
     )
 
 
-def solve_backwards(monkey: Monkey, target: int, monkeys: dict[str, Monkey]) -> None:
+def solve_backwards(
+    monkey: Monkey, target: int, monkeys: dict[str, Monkey]
+) -> None:
     # value is already set? - no need to continue
     if monkey.value is not None:
         return
@@ -52,7 +56,7 @@ def solve_backwards(monkey: Monkey, target: int, monkeys: dict[str, Monkey]) -> 
     monkey.value = target
 
     # terminal monkey
-    if monkey.a is None and monkey.b is None:
+    if monkey.a is None or monkey.b is None:
         return
     monkey_a = monkeys[monkey.a]
     monkey_b = monkeys[monkey.b]
@@ -92,7 +96,9 @@ def solve_backwards(monkey: Monkey, target: int, monkeys: dict[str, Monkey]) -> 
         raise ValueError
 
 
-def solve_for_one_branch(parent: Monkey, monkeys: dict[str, Monkey]):
+def solve_for_one_branch(parent: Monkey, monkeys: dict[str, Monkey]) -> None:
+    if parent.a is None or parent.b is None:
+        raise ValueError("parent doesn't have child nodes to solve")
     child_a = monkeys[parent.a]
     child_b = monkeys[parent.b]
     while (
@@ -128,6 +134,8 @@ def part1(filename: str) -> int:
     while unassigned := get_unassigned_monkeys(monkeys):
         for monkey in unassigned:
             find_value(monkey, monkeys)
+    if monkeys["root"].value is None:
+        raise ValueError("didn't solve completely")
     return monkeys["root"].value
 
 
@@ -135,6 +143,8 @@ def part2(filename: str) -> int:
     monkeys = build_monkeys(filename)
 
     root = monkeys["root"]
+    if root.a is None or root.b is None:
+        raise ValueError("root doesn't have (a) child node(s).")
     root_a = monkeys[root.a]
     root_b = monkeys[root.b]
     human = monkeys["humn"]
@@ -147,6 +157,8 @@ def part2(filename: str) -> int:
 
     # figure out value that is set
     target = root_a.value if root_a.value is not None else root_b.value
+    if target is None:
+        raise ValueError("both branches unsolved.")
 
     # solve from top downward
     if root_a.value is None:
@@ -154,6 +166,8 @@ def part2(filename: str) -> int:
     else:
         solve_backwards(root_b, target, monkeys)
 
+    if human.value is None:
+        raise ValueError("didn't calculate human value")
     return human.value
 
 
