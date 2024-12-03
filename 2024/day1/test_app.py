@@ -16,3 +16,22 @@ def test_get_input() -> None:
 
 def test_example() -> None:
     assert app.attempt("2024/day1/example.txt", 1) == 11
+    assert app.attempt("2024/day1/example.txt", 2) == 31
+
+
+def test_get_counts() -> None:
+    values = [1, 1, 2, 3, 3, 3]
+    counts = app.get_counts(values)
+    assert counts[1] == 2
+    assert counts[2] == 1
+    assert counts[3] == 3
+    assert counts[4] == 0
+
+
+def test_get_similarity_score() -> None:
+    values = [1, 1, 2, 3, 3, 3]
+    counts = app.get_counts(values)
+    assert app.get_similarity_score(1, counts) == 2
+    assert app.get_similarity_score(2, counts) == 2
+    assert app.get_similarity_score(3, counts) == 9
+    assert app.get_similarity_score(4, counts) == 0
