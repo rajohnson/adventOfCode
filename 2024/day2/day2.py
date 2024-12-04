@@ -7,16 +7,33 @@ def get_input(file_name: str) -> list[list[int]]:
 
 
 def report_is_safe(report: list[int], dampen: bool) -> bool:
-    unsafe_reports = 0
     increasing = report[0] < report[1]
-    for i, j in zip(report, report[1:]):  # pair up adjacent values
+    i = 0
+    j = 1
+    while j < len(report):
         # change isn't consistent
-        if (increasing and i > j) or (not increasing and i < j):
-            unsafe_reports += 1
+        if (increasing and report[i] > report[j]) or (
+            not increasing and report[i] < report[j]
+        ):
+            if not dampen:
+                return False
+            else:
+                # drop the jth element and try again
+                return report_is_safe(report[:j] + report[j + 1 :], False)
+
         # amount changed isn't within bounds
-        if not (1 <= abs(i - j) <= 3):
-            unsafe_reports += 1
-    return unsafe_reports <= (1 if dampen else 0)
+        if not (1 <= abs(report[i] - report[j]) <= 3):
+            if not dampen:
+                return False
+            else:
+                # drop the jth element and try again
+                return report_is_safe(report[:j] + report[j + 1 :], False)
+
+        # increment indices
+        i += 1
+        j += 1
+
+    return True
 
 
 def attempt(file_name: str, part: int) -> int:
