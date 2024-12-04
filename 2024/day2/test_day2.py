@@ -3,18 +3,18 @@ import pytest
 
 
 @pytest.mark.parametrize(
-    "report, result",
+    "report, dampen, result",
     [
-        ([7, 6, 4, 2, 1], True),
-        ([1, 2, 7, 8, 9], False),
-        ([9, 7, 6, 2, 1], False),
-        ([1, 3, 2, 4, 5], False),
-        ([8, 6, 4, 4, 1], False),
-        ([1, 3, 6, 7, 9], True),
+        ([7, 6, 4, 2, 1], False, True),
+        ([1, 2, 7, 8, 9], False, False),
+        ([9, 7, 6, 2, 1], False, False),
+        ([1, 3, 2, 4, 5], False, False),
+        ([8, 6, 4, 4, 1], False, False),
+        ([1, 3, 6, 7, 9], False, True),
     ],
 )
-def test_report_is_safe(report, result) -> None:
-    assert day2.report_is_safe(report) == result
+def test_report_is_safe(report, dampen, result) -> None:
+    assert day2.report_is_safe(report, dampen) == result
 
 
 def test_get_input() -> None:

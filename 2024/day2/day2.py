@@ -6,22 +6,23 @@ def get_input(file_name: str) -> list[list[int]]:
     return reports
 
 
-def report_is_safe(report: list[int]) -> bool:
+def report_is_safe(report: list[int], dampen: bool) -> bool:
+    unsafe_reports = 0
     increasing = report[0] < report[1]
     for i, j in zip(report, report[1:]):  # pair up adjacent values
         # change isn't consistent
         if (increasing and i > j) or (not increasing and i < j):
-            return False
+            unsafe_reports += 1
         # amount changed isn't within bounds
         if not (1 <= abs(i - j) <= 3):
-            return False
-    return True
+            unsafe_reports += 1
+    return unsafe_reports <= (1 if dampen else 0)
 
 
 def attempt(file_name: str, part: int) -> int:
     reports = get_input(file_name)
     if part == 1:
-        return sum(report_is_safe(report) for report in reports)
+        return sum(report_is_safe(report, False) for report in reports)
 
 
 if __name__ == "__main__":
